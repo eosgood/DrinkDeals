@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>address</key>
+		<string>892 Marsh Street</string>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>3</string>
+				</array>
+				<key>description</key>
+				<string>$4 40oz Pitchers</string>
+				<key>time</key>
+				<string>4pm to close</string>
+				<key>type</key>
+				<integer>1</integer>
+			</dict>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>2</string>
+				</array>
+				<key>description</key>
+				<string>$1 Beers</string>
+				<key>time</key>
+				<string>4pm to  close</string>
+				<key>type</key>
+				<integer>1</integer>
+			</dict>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>1</string>
+				</array>
+				<key>description</key>
+				<string>$1 crispy chicken or beef tacos </string>
+				<key>time</key>
+				<string>4pm to close</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>1</string>
+				</array>
+				<key>description</key>
+				<string>$2 bottled beers</string>
+				<key>time</key>
+				<string>4pm to close</string>
+				<key>type</key>
+				<string>1</string>
+			</dict>
+		</array>
+		<key>latitude</key>
+		<real>35.2797855</real>
+		<key>longitude</key>
+		<real>-120.6610942</real>
+		<key>name</key>
+		<string>Chinos</string>
+		<key>phone</key>
+		<string>8055448686</string>
+	</dict>
+	<dict>
+		<key>address</key>
+		<string>1119 Garden St</string>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>1</string>
+				</array>
+				<key>description</key>
+				<string>$1 Pints</string>
+				<key>time</key>
+				<string>9pm to Close</string>
+				<key>type</key>
+				<string>1</string>
+			</dict>
+		</array>
+		<key>latitude</key>
+		<real>35.2790823</real>
+		<key>longitude</key>
+		<string>-120.6633347</string>
+		<key>name</key>
+		<string>Slo Brew</string>
+		<key>phone</key>
+		<string>8055431843</string>
+	</dict>
+	<dict>
+		<key>address</key>
+		<string>723 Higuera St</string>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>1</string>
+				</array>
+				<key>description</key>
+				<string>2 for 1 Drinks</string>
+				<key>time</key>
+				<string>9pm to Close</string>
+				<key>type</key>
+				<string>1</string>
+			</dict>
+		</array>
+		<key>latitude</key>
+		<string>35.2790365</string>
+		<key>longitude</key>
+		<string>-120.6640706</string>
+		<key>name</key>
+		<string>The Library</string>
+		<key>phone</key>
+		<string>8055420199</string>
+	</dict>
+	<dict>
+		<key>address</key>
+		<string>763 E Foothill Blvd</string>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>4</string>
+				</array>
+				<key>description</key>
+				<string>2 for 1 Pitchers</string>
+				<key>time</key>
+				<string>7pm to 9pm</string>
+				<key>type</key>
+				<string>1</string>
+			</dict>
+		</array>
+		<key>latitude</key>
+		<string>35.2939141</string>
+		<key>longitude</key>
+		<string>-120.6729001</string>
+		<key>name</key>
+		<string>The Shack</string>
+		<key>phone</key>
+		<string>8055468623</string>
+	</dict>
+	<dict>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>3</string>
+					<string>2</string>
+					<string>1</string>
+					<string>0</string>
+				</array>
+				<key>type</key>
+				<string>1</string>
+				<key>time</key>
+				<string>8pm - 11pm</string>
+				<key>description</key>
+				<string>Happy Hour: $1 off Pints, $2 off Pitchers</string>
+			</dict>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>2</string>
+				</array>
+				<key>type</key>
+				<string>1</string>
+				<key>time</key>
+				<string>8pm-11pm</string>
+				<key>description</key>
+				<string>Pint Night: $1 Refills</string>
+			</dict>
+		</array>
+		<key>longitude</key>
+		<string>-120.6607636</string>
+		<key>latitude</key>
+		<real>35.2812018</real>
+		<key>phone</key>
+		<string>8055414420</string>
+		<key>name</key>
+		<string>Woodstock Pizza</string>
+		<key>address</key>
+		<string>1000 Higuera St</string>
+	</dict>
+	<dict>
+		<key>deals</key>
+		<array>
+			<dict>
+				<key>days</key>
+				<array>
+					<string>6</string>
+				</array>
+				<key>description</key>
+				<string>Bottomless Mimosas</string>
+				<key>time</key>
+				<string>11am - 3pm</string>
+				<key>type</key>
+				<string>1</string>
+			</dict>
+		</array>
+		<key>latitude</key>
+		<real>35.2803169</real>
+		<key>longitude</key>
+		<real>-120.663475</real>
+		<key>name</key>
+		<string>Cielo Cantina</string>
+		<key>address</key>
+		<string>1023 Chorro St</string>
+		<key>phone</key>
+		<string>8055459001</string>
+	</dict>
+</array>
+</plist>
