@@ -8,6 +8,9 @@
 
 #import "MapViewController.h"
 
+#import "NewDealViewController.h"
+#import "BusinessViewController.h"
+
 
 @implementation MapViewController
 
@@ -62,6 +65,34 @@
     // Release any cached data, images, etc that aren't in use.
 }
 
+#pragma mark - CLGeocoder Delegates
+
+- (void)displayError:(NSError *)error
+{
+    NSString *errorMessage = [error localizedDescription];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cannot obtain address."
+														message:errorMessage
+													   delegate:nil
+											  cancelButtonTitle:@"OK"
+											  otherButtonTitles:nil];
+    [alertView show];
+    [alertView release];
+}
+
+- (void) displayPlacemarks: (NSArray *) placemarks 
+{
+    NewDealViewController *addController = [[NewDealViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    addController.engine = self.engine;
+    addController.placemarks = placemarks;
+    addController.newBus = YES;
+    UINavigationController *newNavController = [[UINavigationController alloc]
+                                                initWithRootViewController:addController];
+    
+    [[self navigationController] presentModalViewController:newNavController animated:YES];
+    [addController release];
+    [newNavController release];
+}
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
@@ -77,7 +108,7 @@
         // configure map button
         UIBarButtonItem *mapButton = [[UIBarButtonItem alloc] 
                                       initWithTitle:@"List" 
-                                      style:UIBarButtonSystemItemAction
+                                      style:UIBarButtonItemStylePlain
                                       target:self 
                                       action:@selector(list)];
         [[self navigationItem] setLeftBarButtonItem:mapButton];
@@ -111,13 +142,26 @@
     }
 }
 
+
+
 - (void)add
 {
-    self.reverseGeocoder =
-    [[[MKReverseGeocoder alloc] initWithCoordinate:self.mapView.userLocation.location.coordinate] autorelease];
-    self.reverseGeocoder.delegate = self;
-    [self.reverseGeocoder start];
+    
+    self.reverseGeocoder = [[[CLGeocoder alloc] init] autorelease];
+    
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:self.mapView.userLocation.location.coordinate.latitude longitude:self.mapView.userLocation.location.coordinate.longitude] autorelease];
 
+    
+    [self.reverseGeocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+        NSLog(@"reverseGeocodeLocation:completionHandler: Completion Handler called!");
+        if (error){
+            NSLog(@"Geocode failed with error: %@", error);
+            [self displayError:error];
+            return;
+        }
+        NSLog(@"Received placemarks: %@", placemarks);
+        [self displayPlacemarks:placemarks];
+    }];
 }
 
 -(void) list
@@ -133,18 +177,6 @@
 }
 
 #pragma mark - Delegate Functions
-
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFailWithError:(NSError *)error
-{
-    NSString *errorMessage = [error localizedDescription];
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cannot obtain address."
-														message:errorMessage
-													   delegate:nil
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil];
-    [alertView show];
-    [alertView release];
-}
 
 - (MKAnnotationView *)mapView:(MKMapView *)theMapView viewForAnnotation:(id <MKAnnotation>)annotation
 {    
@@ -214,19 +246,6 @@
     [[self navigationController] pushViewController:controller
                                            animated:YES];
 	[controller release];
-}
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark
-{
-    NewDealViewController *addController = [[NewDealViewController alloc] initWithStyle:UITableViewStyleGrouped];
-    addController.engine = self.engine;
-    addController.placemark = placemark;
-    addController.newBus = YES;
-    UINavigationController *newNavController = [[UINavigationController alloc]
-                                                initWithRootViewController:addController];
-    
-    [[self navigationController] presentModalViewController:newNavController animated:YES];
-    [addController release];
-    [newNavController release];
 }
 
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation

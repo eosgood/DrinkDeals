@@ -15,11 +15,11 @@
 
 @synthesize businesses = _businesses;
 @synthesize busForGivenDay = _bfgd;
-@synthesize newBusiness = _newBus;
+@synthesize business = _bus;
 
 -(void) dealloc
 {
-    [_newBus release];
+    [_bus release];
     [_dealsDelegate release];
     [_bfgd release];
     [_businesses release];
@@ -90,7 +90,7 @@
     [request setPostValue:newBus.longitude forKey:@"longitude"];
     [request setDelegate:insertDelegate];
     [request startAsynchronous];
-    self.newBusiness = newBus;
+    self.business = newBus;
     
 }
 
@@ -125,8 +125,8 @@
 -(void) busCreated:(NSInteger)busID
 {
     NSLog(@"BUS added id: %d", busID);
-    if (self.newBusiness != nil){
-        for (Deal *deal in self.newBusiness.deals){
+    if (self.business != nil){
+        for (Deal *deal in self.business.deals){
             Insert *insertDelegate = [[[[Insert alloc] initializeWithDelegate:self] retain] autorelease];
             
             NSURL *theUrl = [NSURL URLWithString:INSERT_URL];

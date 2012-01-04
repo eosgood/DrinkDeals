@@ -25,9 +25,9 @@ enum{
 
 @property BOOL newBus;
 @property (nonatomic, retain) Business *theBus;
-@property (nonatomic, retain) Deal *newDeal;
+@property (nonatomic, retain) Deal *deal;
 @property (nonatomic, assign) DealsEngine *engine;
-@property (nonatomic, retain) MKPlacemark *placemark;
+@property (nonatomic, retain) NSArray *placemarks;
 @property (nonatomic, retain) UISegmentedControl *dealType;
 @property (nonatomic, retain) NSMutableArray *dealDays;
 @property (nonatomic, retain) NSArray *daysOfTheWeek;

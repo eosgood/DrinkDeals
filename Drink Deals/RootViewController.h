@@ -3,18 +3,16 @@
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
 
-#import "DealCell.h"
+#import "FBConnect.h"
 #import "DealsEngine.h"
-#import "BusinessViewController.h"
-#import "MapViewController.h"
 
-@interface RootViewController : UITableViewController <MKReverseGeocoderDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate,DealsUpdatedDelegate>
+@interface RootViewController : UITableViewController <CLLocationManagerDelegate, UIGestureRecognizerDelegate,DealsUpdatedDelegate, FBSessionDelegate>
 {
-
+    
 }
 
 @property (nonatomic, assign) DealsEngine *engine;
-@property (nonatomic, retain) MKReverseGeocoder *reverseGeocoder;
+@property (nonatomic, retain) CLGeocoder *reverseGeocoder;
 @property (nonatomic, retain) CLLocationManager *locationManager;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *days;
 @property (nonatomic, retain) NSNumber *dayOfTheWeek;

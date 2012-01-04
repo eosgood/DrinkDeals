@@ -8,15 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "DealsEngine.h"
 #import "RootViewController.h"
 #import "BusAnnotation.h"
 
-@interface MapViewController : UIViewController <MKMapViewDelegate, MKReverseGeocoderDelegate>{
+@interface MapViewController : UIViewController <MKMapViewDelegate>{
     
 }
 
 @property (nonatomic, retain) IBOutlet MKMapView *mapView;
-@property (nonatomic, retain) MKReverseGeocoder *reverseGeocoder;
+@property (nonatomic, retain) CLGeocoder *reverseGeocoder;
 @property (nonatomic, retain) Business *bus;
 @property (nonatomic, assign) DealsEngine *engine;
 @property BOOL isUpdated;

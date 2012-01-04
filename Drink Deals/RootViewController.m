@@ -1,6 +1,11 @@
 
 #import "RootViewController.h"
 
+#import "Drink_DealsAppDelegate.h"
+#import "NewDealViewController.h"
+#import "MapViewController.h"
+#import "DealCell.h"
+#import "BusinessViewController.h"
 
 /*
  Predefined colors to alternate the background color of each cell row by row
@@ -95,12 +100,12 @@
     self.tableView.backgroundColor = DARK_BACKGROUND;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-    self.tableView.bounces = NO;
+    self.tableView.bounces = YES;
     
     // configure map button
     UIBarButtonItem *mapButton = [[UIBarButtonItem alloc] 
                                    initWithTitle:@"Map" 
-                                   style:UIBarButtonSystemItemAction
+                                   style:UIBarButtonItemStylePlain
                                    target:self 
                                    action:@selector(map)];
     [[self navigationItem] setLeftBarButtonItem:mapButton];
@@ -122,8 +127,56 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
-     [self refreshBusinesses];
+     NSArray* permissions = [NSArray arrayWithObjects: @"user_checkins", @"friends_checkins", @"publish_checkins", nil];
+    
+    Drink_DealsAppDelegate *delegate = (Drink_DealsAppDelegate *) [[UIApplication sharedApplication] delegate];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:@"FBAccessTokenKey"] 
+        && [defaults objectForKey:@"FBExpirationDateKey"]) {
+        [delegate facebook].accessToken = [defaults objectForKey:@"FBAccessTokenKey"];
+        [delegate facebook].expirationDate = [defaults objectForKey:@"FBExpirationDateKey"];
+    }
+    if (![[delegate facebook] isSessionValid]) {
+        [[delegate facebook] authorize: permissions];
+    } else {
+        [self refreshBusinesses];
+    }
 }
+
+#pragma mark - FBSessionDelegate Methods
+
+/**
+ * FBSession delegate
+ */
+
+-(void)fbDidLogin
+{   
+    
+    Drink_DealsAppDelegate *delegate = (Drink_DealsAppDelegate *) [[UIApplication sharedApplication] delegate];
+    
+    // Save authorization information
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:[[delegate facebook] accessToken] forKey:@"FBAccessTokenKey"];
+    [defaults setObject:[[delegate facebook] expirationDate] forKey:@"FBExpirationDateKey"];
+    [defaults synchronize];
+    
+    [self refreshBusinesses];
+}
+
+-(void)fbDidNotLogin:(BOOL)cancelled
+{
+    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error"
+														message:@"Facebook Failed to Login"
+													   delegate:nil
+											  cancelButtonTitle:@"OK"
+											  otherButtonTitles:nil];
+    [alertView show];
+    [alertView release];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 
 -(IBAction) segmentedControlIndexChanged
 {
@@ -154,7 +207,9 @@
     
 }
 
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFailWithError:(NSError *)error
+#pragma mark - CLGeocoder Delegates
+
+- (void)displayError:(NSError *)error
 {
     NSString *errorMessage = [error localizedDescription];
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cannot obtain address."
@@ -166,16 +221,16 @@
     [alertView release];
 }
 
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark
+- (void) displayPlacemarks: (NSArray *) placemarks 
 {
     NewDealViewController *addController = [[NewDealViewController alloc] initWithStyle:UITableViewStyleGrouped];
     addController.engine = self.engine;
-    addController.placemark = placemark;
+    addController.placemarks = placemarks;
     addController.newBus = YES;
     UINavigationController *newNavController = [[UINavigationController alloc]
                                                 initWithRootViewController:addController];
     
-    [[self navigationController] presentModalViewController:newNavController                                                   animated:YES];
+    [[self navigationController] presentModalViewController:newNavController animated:YES];
     [addController release];
     [newNavController release];
 }
@@ -184,10 +239,21 @@
     didUpdateToLocation:(CLLocation *)newLocation 
            fromLocation:(CLLocation *)oldLocation {
 	
-    self.reverseGeocoder =
-    [[[MKReverseGeocoder alloc] initWithCoordinate: newLocation.coordinate] autorelease];
-    self.reverseGeocoder.delegate = self;
-    [self.reverseGeocoder start];
+   
+    self.reverseGeocoder = [[[CLGeocoder alloc] init] autorelease];
+    
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:newLocation.coordinate.latitude longitude:newLocation.coordinate.longitude] autorelease];
+    
+    
+    [self.reverseGeocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+        if (error){
+            NSLog(@"Geocode failed with error: %@", error);
+            [self displayError:error];
+            return;
+        }
+        [self displayPlacemarks:placemarks];
+    }];
+    
     [self.locationManager stopUpdatingLocation];
     
 }

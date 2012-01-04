@@ -8,16 +8,18 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "FBConnect.h"
+
 #import "NearbyPlacesRequestResult.h"
 #import "PostCheckinRequestResult.h"
+#import "Business.h"
 
-@interface FacebookCheckinController : UITableViewController <FBSessionDelegate, NearbyPlacesRequestDelegate, PostCheckinRequestDelegate>{
+@interface FacebookCheckinController : UITableViewController <FBSessionDelegate, NearbyPlacesRequestDelegate, PostCheckinRequestDelegate>
+{
     
 }
 
-@property (nonatomic, retain) Facebook *facebook;
 @property (nonatomic, retain) NSArray *places;
 @property CLLocationCoordinate2D location;
+@property (nonatomic, retain) Business *theBus;
 
 @end

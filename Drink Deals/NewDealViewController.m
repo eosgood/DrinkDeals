@@ -20,23 +20,23 @@
 @synthesize newBus;
 @synthesize engine = _engine;
 @synthesize theBus = _bus;
-@synthesize placemark = _place;
+@synthesize placemarks = _places;
 @synthesize dealType = _dealType;
 @synthesize dealDays = _dealDays;
 @synthesize daysOfTheWeek = _days;
-@synthesize newDeal = _newDeal;
+@synthesize deal = _deal;
 
 
 - (void)dealloc
 {
-    [_newDeal release];
+    [_deal release];
     [_bus release];
     
     [_dealDays release];
     [_days release];
     
     [_dealType release];
-    [_place release];
+    [_places release];
     
     
     
@@ -53,7 +53,7 @@
         }
         index++;
     }
-    self.newDeal.days = [[NSArray alloc] initWithArray:days];
+    self.deal.days = [[NSArray alloc] initWithArray:days];
     [days release];
 }
 
@@ -61,19 +61,21 @@
 {
     [self addDaysToDeal];
     
-    if (self.newDeal.type == nil){
-        self.newDeal.type = [NSNumber numberWithInt: self.dealType.selectedSegmentIndex];
+    if (self.deal.type == nil){
+        self.deal.type = [NSNumber numberWithInt: self.dealType.selectedSegmentIndex];
     }
     
+    CLPlacemark *placemark = [self.placemarks objectAtIndex:0];
+    
     if (self.newBus){
-        self.theBus.latitude = [NSNumber numberWithFloat: self.placemark.coordinate.latitude];
-        self.theBus.longitude = [NSNumber numberWithFloat: self.placemark.coordinate.longitude];
+        self.theBus.latitude = [NSNumber numberWithFloat: placemark.location.coordinate.latitude];
+        self.theBus.longitude = [NSNumber numberWithFloat: placemark.location.coordinate.longitude];
         self.theBus.deals = [[NSMutableArray alloc] initWithCapacity:1];
-        [self.theBus.deals addObject:self.newDeal];
+        [self.theBus.deals addObject:self.deal];
         [self.engine addNewDeal:self.theBus];
     } else {
-        self.newDeal.bus_id = self.theBus.ID;
-        [self.engine addDealToBus:self.newDeal];
+        self.deal.bus_id = self.theBus.ID;
+        [self.engine addDealToBus:self.deal];
     }
     [self dismissModalViewControllerAnimated:YES];
 }
@@ -90,7 +92,7 @@
 {
     [super viewDidLoad];
 
-    self.newDeal = [[Deal alloc] init];
+    self.deal = [[Deal alloc] init];
     
     // setup days 
     self.dealDays = [[NSMutableArray alloc] initWithObjects: @"NO", @"NO",@"NO",@"NO",@"NO",@"NO",@"NO",nil];
@@ -132,7 +134,6 @@
     // e.g. self.myOutlet = nil;
 }
 
-#pragma mark -
 #pragma mark UITextFieldDelegate Protocol
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
@@ -156,9 +157,9 @@
         case BusAddress: self.theBus.address = text; break;
         case BusPhone: self.theBus.phone = text; break;
             
-        case DealDesc: self.newDeal.description = text; break;
-        case DealSpecials: self.newDeal.specials = text; break;
-        case DealTime: self.newDeal.time = text; break;
+        case DealDesc: self.deal.description = text; break;
+        case DealSpecials: self.deal.specials = text; break;
+        case DealTime: self.deal.time = text; break;
     }
 }
 
@@ -179,7 +180,6 @@
 }
 
 
-#pragma mark -
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -211,7 +211,7 @@
     
     // reset the cell incase its being reused
     cell.accessoryType = UITableViewCellAccessoryNone;
-    cell.selectionStyle = UITableViewCellEditingStyleNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.textField.text = nil;
     cell.textField.placeholder = nil;
     [cell.textField setKeyboardType:UIKeyboardTypeDefault];
@@ -232,7 +232,8 @@
                 if (!self.newBus){
                     cell.textField.text = self.theBus.address;
                 } else {
-                    cell.textField.text = self.placemark.thoroughfare;
+                    CLPlacemark *placemark = [self.placemarks objectAtIndex:0];
+                    cell.textField.text = placemark.thoroughfare;
                 }
                 break;
             case 2:
@@ -249,23 +250,23 @@
             case 0:
                 cell.textField.placeholder = @"Description";
                 cell.textField.tag = DealDesc;
-                cell.textField.text = self.newDeal.description;
+                cell.textField.text = self.deal.description;
                 break;
             case 1:
                 cell.textField.tag = DealSpecials;
                 cell.textField.placeholder = @"Specials";
-                cell.textField.text = self.newDeal.specials;
+                cell.textField.text = self.deal.specials;
                 break;
             case 2:
                 cell.textField.tag = DealTime;
                 cell.textField.placeholder = @"Time";
-                cell.textField.text = self.newDeal.time;
+                cell.textField.text = self.deal.time;
                 break;
             case 3:
             {
                 NSArray *segmentItems = [NSArray arrayWithObjects:@"Food", @"Drink", nil];
                 self.dealType = [[UISegmentedControl alloc] initWithItems:segmentItems];
-                 self.dealType.selectedSegmentIndex = [self.newDeal.type intValue];
+                 self.dealType.selectedSegmentIndex = [self.deal.type intValue];
                  self.dealType.frame  = CGRectMake(2, 2, 296, 44);
                 [self.dealType addTarget: self action: @selector(onSegmentedControlChanged:) forControlEvents: UIControlEventValueChanged];
                 [cell.contentView addSubview: self.dealType];
@@ -290,7 +291,7 @@
 
 - (void)onSegmentedControlChanged:(id)sender
 {
-    self.newDeal.type = [NSNumber numberWithInt: self.dealType.selectedSegmentIndex];
+    self.deal.type = [NSNumber numberWithInt: self.dealType.selectedSegmentIndex];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

@@ -62,7 +62,7 @@
     // configure map button
     UIBarButtonItem *editButton = [[UIBarButtonItem alloc] 
                                   initWithTitle:@"Edit" 
-                                  style:UIBarButtonSystemItemAction
+                                  style:UIBarButtonItemStylePlain
                                   target:self 
                                   action:@selector(edit)];
     [[self navigationItem] setRightBarButtonItem:editButton];
@@ -129,7 +129,7 @@
             break;
         }
     } else {
-        cell.selectionStyle = UITableViewCellAccessoryNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
         Deal *deal = [self.bus.deals objectAtIndex: indexPath.row];
         cell.accessoryType = UITableViewCellAccessoryNone;
         cell.textLabel.text = deal.description;
@@ -183,6 +183,7 @@ titleForHeaderInSection:(NSInteger)section
             }
             case Fb: {
                 FacebookCheckinController *detailViewController = [[FacebookCheckinController alloc] init];
+                detailViewController.theBus = self.bus;
                 detailViewController.location = CLLocationCoordinate2DMake([self.bus.latitude floatValue], [self.bus.longitude floatValue]);
                 
                 [self.navigationController pushViewController:detailViewController animated:YES];

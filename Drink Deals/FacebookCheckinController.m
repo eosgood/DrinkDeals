@@ -8,38 +8,21 @@
 
 #import "FacebookCheckinController.h"
 
+#import "Drink_DealsAppDelegate.h"
+
 
 @implementation FacebookCheckinController
 
-@synthesize facebook = _facebook;
 @synthesize places = _places;
 @synthesize location = _location;
+@synthesize theBus = _theBus;
 
 - (void)dealloc
 {
-    [_facebook release];
+    [_theBus release];
     [_places release];
     [super dealloc];
 }
-
-#pragma mark - View lifecycle
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    self.title = @"Check-in";
-    
-    NSArray* permissions = [NSArray arrayWithObjects: @"user_checkins", @"friends_checkins", @"publish_checkins", nil];
-    
-    self.facebook = [[Facebook alloc] initWithAppId:@"125167657566554"];
-   
-    if (![self.facebook isSessionValid])
-    {
-        [self.facebook authorize:permissions delegate:self];
-    }
-}
-
 
 /**
  * Get data / send data
@@ -57,9 +40,23 @@
 								   centerString,@"center",
 								   @"1000",@"distance", // In Meters (1000m = 0.62mi)
 								   nil];
+    Drink_DealsAppDelegate *delegate = (Drink_DealsAppDelegate *) [[UIApplication sharedApplication] delegate];
     
-	[_facebook requestWithGraphPath:@"search" andParams: params andDelegate:nearbyPlacesRequestResult];
+	[[delegate facebook] requestWithGraphPath:@"search" andParams: params andDelegate:nearbyPlacesRequestResult];
 }
+
+#pragma mark - View lifecycle
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.title = @"Check-in";
+    
+    [self getNearbyPlaces];
+    
+}
+
 
 /**
  * delegate for places request
@@ -84,6 +81,7 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+
 /**
  * post checkin to fb
  */
@@ -102,15 +100,21 @@
     
 	NSString *coordinates = [jsonWriter stringWithObject:coordinatesDictionary];
     
+    Deal *deal = [self.theBus.deals objectAtIndex:0];
+    
+    NSMutableString *info = [NSMutableString stringWithString:self.theBus.name];
+    [info appendString:@" | "];
+    [info appendString:deal.description];
     
 	NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
 								   [dictionary objectForKey:@"id"], @"place", //The PlaceID
-								   coordinates, @"coordinates", // The latitude and longitude in string format (JSON)
-								   //message, @"message", // The status message
-								   //tags, @"tags", // The user's friends who are being checked in
+								   coordinates, @"coordinates", 
+                                   info, @"message",
 								   nil];
     
-	[self.facebook requestWithGraphPath:@"me/checkins" andParams:params andHttpMethod:@"POST" andDelegate:postCheckinRequestResult];
+    Drink_DealsAppDelegate *delegate = (Drink_DealsAppDelegate *) [[UIApplication sharedApplication] delegate];
+    
+	[[delegate facebook] requestWithGraphPath:@"me/checkins" andParams:params andHttpMethod:@"POST" andDelegate:postCheckinRequestResult];
 }
 
 /**
@@ -137,29 +141,6 @@
     [alertView show];
     [alertView release];
     [self.navigationController popViewControllerAnimated:YES];
-}
-
-/**
- * FBSession delegate
- */
-
--(void) fbDidLogin
-{    
-    [self getNearbyPlaces];
-}
-
--(void) fbDidNotLogin:(BOOL)cancelled
-{
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error"
-														message:@"Facebook Failed to Login"
-													   delegate:nil
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil];
-    [alertView show];
-    [alertView release];
-    [self.navigationController popViewControllerAnimated:YES];
-    
-    
 }
 
 - (void)viewDidUnload

@@ -41,8 +41,6 @@
     dealDescription.text = deal.description;
     dealTime.text = deal.time;
     
-    NSLog(@"deal: %@ | special: %@", deal.description, deal.specials);
-    
     specials.text = deal.specials;
     
     int dealType = [deal.type intValue];

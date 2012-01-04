@@ -22,7 +22,7 @@
 
 @property (nonatomic, retain) NSMutableArray *businesses;
 @property (nonatomic, retain) NSMutableArray *busForGivenDay;
-@property (retain) Business *newBusiness;
+@property (retain) Business *business;
 
 - (id) initializeWithDelegate: (id)delegate;
 -(void) addNewDeal: (Business*) newBus;

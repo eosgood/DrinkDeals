@@ -18,6 +18,8 @@
 
 @synthesize rootViewController = _rootViewController;
 
+@synthesize facebook = _facebook;
+
 -(void) setup
 {
     NSCalendar *gregorian = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
@@ -38,10 +40,23 @@
     self.engine = [[DealsEngine alloc] initializeWithDelegate:self.rootViewController];
     [self setup];
     
+    // Initialize Facebook
+    self.facebook = [[Facebook alloc] initWithAppId:@"125167657566554"  andDelegate:self.rootViewController];
+    
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];
     return YES;
 }
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return [self.facebook handleOpenURL:url];
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [self.facebook handleOpenURL:url];
+}
+
+
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {

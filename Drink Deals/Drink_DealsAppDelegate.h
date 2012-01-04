@@ -8,12 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "RootViewController.h"
+#import "FBConnect.h"
 
 @interface Drink_DealsAppDelegate : NSObject <UIApplicationDelegate> {
 
 }
 
 @property (nonatomic, retain) DealsEngine *engine;
+
+@property (nonatomic, retain) Facebook *facebook;
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 
