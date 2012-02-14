@@ -21,7 +21,6 @@ enum{
     IBOutlet UILabel *specials;
 }
 
-@property BOOL useDarkBackground;
 @property (nonatomic, retain) Deal *deal;
 
 

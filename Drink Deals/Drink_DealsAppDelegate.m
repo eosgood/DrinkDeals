@@ -29,7 +29,7 @@
     
     [self.engine downloadDeals];
     self.rootViewController.engine = self.engine;
-    [self.rootViewController.tableView reloadData];
+    [self.rootViewController.dealsTable reloadData];
 }
 
 
@@ -37,11 +37,16 @@
 {
     // Override point for customization after application launch.
     // Add the navigation controller's view to the window and display.
+    self.rootViewController = [[ListViewController alloc] initWithNibName:@"ListViewController" bundle:nil];
     self.engine = [[DealsEngine alloc] initializeWithDelegate:self.rootViewController];
     [self setup];
     
     // Initialize Facebook
     self.facebook = [[Facebook alloc] initWithAppId:@"125167657566554"  andDelegate:self.rootViewController];
+    
+    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    
+    self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.rootViewController];
     
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];

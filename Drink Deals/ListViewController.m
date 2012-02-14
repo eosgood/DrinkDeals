@@ -1,10 +1,9 @@
 
-#import "RootViewController.h"
+#import "ListViewController.h"
 
 #import "Drink_DealsAppDelegate.h"
 #import "NewDealViewController.h"
 #import "MapViewController.h"
-#import "DealCell.h"
 #import "BusinessViewController.h"
 
 /*
@@ -15,7 +14,7 @@
 #define LIGHT_BACKGROUND [UIColor colorWithRed:172.0/255.0 green:173.0/255.0 blue:175.0/255.0 alpha:1.0]
 
 
-@implementation RootViewController
+@implementation ListViewController
 
 @synthesize reverseGeocoder = _coder;
 @synthesize engine = _engine;
@@ -23,6 +22,11 @@
 @synthesize days = _days;
 @synthesize dayOfTheWeek = _dayOfTheWeek;
 
+@synthesize cellNib = _cellNib;
+@synthesize dealCell = _dealCell;
+@synthesize refreshHeaderView = _refreshHeaderView;
+
+@synthesize dealsTable = _dealsTable;
 
 #pragma mark -
 #pragma mark View controller methods
@@ -43,7 +47,7 @@
     //set the day of the week 
     [self.days setSelectedSegmentIndex: [self.dayOfTheWeek intValue]];
     
-    [self.tableView reloadData];
+    [self.dealsTable reloadData];
 }
 
 -(void) dealsDownloaded
@@ -96,11 +100,11 @@
     
     
 	// Configure the table view.
-    self.tableView.rowHeight = 61.0;
-    self.tableView.backgroundColor = DARK_BACKGROUND;
-    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.dealsTable.rowHeight = 61.0;
+    self.dealsTable.backgroundColor = DARK_BACKGROUND;
+    self.dealsTable.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-    self.tableView.bounces = YES;
+    self.view.backgroundColor = DARK_BACKGROUND;
     
     // configure map button
     UIBarButtonItem *mapButton = [[UIBarButtonItem alloc] 
@@ -119,6 +123,19 @@
     
     [[self navigationItem] setRightBarButtonItem:addButton];
     [addButton release];
+    
+    if (self.refreshHeaderView == nil) {
+		EGORefreshTableHeaderView *view = [[EGORefreshTableHeaderView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.dealsTable.bounds.size.height, self.view.frame.size.width, self.dealsTable.bounds.size.height)];
+		view.delegate = self;
+		[self.dealsTable addSubview:view];
+		self.refreshHeaderView = view;
+		[view release];
+	}
+	
+	//  update the last update date
+	[self.refreshHeaderView refreshLastUpdatedDate];
+    
+    self.cellNib = [UINib nibWithNibName:@"DealCell" bundle:nil];
     
     [self setupSwipeRecognition];
     
@@ -287,7 +304,7 @@
 
 #pragma mark Table view methods
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section 
+- (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section 
 {
     if ([self.engine.busForGivenDay count] == 0){
         return @"No Deals Today";
@@ -297,7 +314,7 @@
 }
 
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv
 {
     if ([self.engine.busForGivenDay count] == 0){
         return 1;
@@ -305,7 +322,7 @@
     return [self.engine.busForGivenDay count];
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section 
 {
      if ([self.engine.busForGivenDay count] == 0){
          return 0;
@@ -322,27 +339,24 @@
 	
     if (cell == nil)
     {
-        NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"DealCell" owner:self options:nil];
-        // Grab a pointer to the first object (presumably the custom cell, as that's all the XIB should contain).
-        cell = [topLevelObjects objectAtIndex:0];
+        [self.cellNib instantiateWithOwner:self options:nil];
+        cell = self.dealCell;
+        self.dealCell = nil;
     }
 	
 	// Configure the data for the cell.
     Business *bus = [self.engine.busForGivenDay objectAtIndex:indexPath.section];
     cell.deal = [bus.deals objectAtIndex:indexPath.row];
     
-    // Display dark and light background in alternate rows
-    cell.useDarkBackground = (indexPath.row % 2 == 0);
-    
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tv willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    cell.backgroundColor = ((DealCell *)cell).useDarkBackground ? DARK_BACKGROUND : LIGHT_BACKGROUND;
+    cell.backgroundColor = (indexPath.row % 2) ? DARK_BACKGROUND : LIGHT_BACKGROUND;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     Business *bus = [self.engine.busForGivenDay objectAtIndex:indexPath.section];
     BusinessViewController *controller = [[BusinessViewController alloc] initWithStyle:UITableViewStyleGrouped];
@@ -354,39 +368,68 @@
 
 }
 
-/*- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-	// create the parent view that will hold header Label
-	UIView* customView = [[UIView alloc] initWithFrame:CGRectMake(10.0, 0.0, 300.0, 44.0)];
+
+#pragma mark -
+#pragma mark Data Source Loading / Reloading Methods
+
+- (void)reloadTableViewDataSource{
 	
-	// create the button object
-	UILabel * headerLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-	headerLabel.backgroundColor = [UIColor clearColor];
-	headerLabel.opaque = NO;
-    headerLabel.textAlignment = UITextAlignmentCenter;
-	headerLabel.textColor = [UIColor blackColor];
-	headerLabel.highlightedTextColor = [UIColor whiteColor];
-	headerLabel.font = [UIFont boldSystemFontOfSize:20];
-	headerLabel.frame = CGRectMake(10.0, 0.0, 300.0, 44.0);
+	//  should be calling your tableviews data source model to reload
+	//  put here just for demo
+	_reloading = YES;
+    [self refreshBusinesses];
+	
+}
+
+- (void)doneLoadingTableViewData{
+	
+	//  model should call this when its done loading
+	_reloading = NO;
+	[self.refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:self.dealsTable];
+	
+}
+
+
+#pragma mark -
+#pragma mark UIScrollViewDelegate Methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{	
+	
+	[_refreshHeaderView egoRefreshScrollViewDidScroll:scrollView];
     
-    if (section % 2 == 0){
-        headerLabel.backgroundColor = LIGHT_BACKGROUND;
-    }
-    
-	// If you want to align the header text as centered
-	//headerLabel.frame = CGRectMake(120.0, 0.0, 300.0, 44.0);
-    
-    if ([self.engine.busForGivenDay count] == 0){
-        headerLabel.text = @"No Deals Today";
-    } else {
-        Business *bus = [self.engine.busForGivenDay objectAtIndex:section];
-        headerLabel.text = bus.name;
-    }
-    
-	[customView addSubview:headerLabel];
-    
-	return customView;
-}*/
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
+	
+	[_refreshHeaderView egoRefreshScrollViewDidEndDragging:scrollView];
+	
+}
+
+
+#pragma mark -
+#pragma mark EGORefreshTableHeaderDelegate Methods
+
+- (void)egoRefreshTableHeaderDidTriggerRefresh:(EGORefreshTableHeaderView*)view{
+	
+	[self reloadTableViewDataSource];
+	[self performSelector:@selector(doneLoadingTableViewData) withObject:nil afterDelay:3.0];
+	
+}
+
+- (BOOL)egoRefreshTableHeaderDataSourceIsLoading:(EGORefreshTableHeaderView*)view{
+	
+	return _reloading; // should return if data source model is reloading
+	
+}
+
+- (NSDate*)egoRefreshTableHeaderDataSourceLastUpdated:(EGORefreshTableHeaderView*)vie
+{
+	
+	return [NSDate date]; // should return date data source was last changed
+	
+}
+
+
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {

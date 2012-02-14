@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RootViewController.h"
+#import "ListViewController.h"
 #import "FBConnect.h"
 
 @interface Drink_DealsAppDelegate : NSObject <UIApplicationDelegate> {
@@ -22,6 +22,6 @@
 
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 
-@property (nonatomic, retain) IBOutlet RootViewController *rootViewController;
+@property (nonatomic, retain) IBOutlet ListViewController *rootViewController;
 
 @end

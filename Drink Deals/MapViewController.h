@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import "DealsEngine.h"
-#import "RootViewController.h"
+#import "ListViewController.h"
 #import "BusAnnotation.h"
 
 @interface MapViewController : UIViewController <MKMapViewDelegate>{

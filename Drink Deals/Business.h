@@ -25,6 +25,4 @@
 
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 
-- (NSString*) toString;
-
 @end
